@@ -1,6 +1,6 @@
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
-import java.util.Arrays;
+//import java.lang.reflect.Array;
+//import java.util.Arrays;
 
 
 /**
@@ -21,18 +21,18 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
 	private int LENGTH = 50;
 	private T[] tree = (T[])new Object[LENGTH];
 	private int counter = -1;
-	private int rear = 0;
+	private int backCounter = 0;
 	
     public SequentialRepresentation() {
 
-    } // end of SequentialRepresentation()
+    }
 
     @Override
     public void setRootNode(T nodeLabel) {
     	if(counter > 0) return;
         tree[0] = nodeLabel;
         counter = 0;
-    } // end of setRootNode()
+    }
 
     @Override
     public void splitNode(T srcLabel, T leftChild, T rightChild) {
@@ -40,7 +40,7 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
     	Comparable<T> temp = (Comparable<T>)srcLabel;
     	int parentIndex;
     	
-        if(counter > (LENGTH/2))
+        if(counter+2 >= (LENGTH/2)+3)
         	expandArray();
         
         if(counter < 0) {
@@ -51,7 +51,7 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
 	        this.tree[parentIndex*2+2] = rightChild;	
 	        counter++;
         } else {
-        	
+
         	if(findNode(srcLabel)) {
         		
             	for(int i = 0; i < LENGTH; i++) {
@@ -65,10 +65,11 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
             			}
             		}
             	}
-        	}
+        	} else 
+        		return;
         }
         
-    } // end of splitNode
+    }
     
     public void expandArray() {
     	T[] newTree = (T[])new Object[LENGTH*2];
@@ -86,7 +87,7 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
     		}
     	}
     	return false;
-    } // end of findNode
+    }
 
     @Override
     public String findParent(T nodeLabel) {
@@ -94,7 +95,7 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
     	label.append(nodeLabel.toString()+" ");
     	Comparable<T> temp = (Comparable<T>)nodeLabel;
     	if (temp.compareTo(tree[0]) == 0) {
-    		label.append("is root.");
+    		label.append("is root node.");
     		return label.toString();
     	}
     	for(int i = 0; i < LENGTH; i++) {
@@ -109,7 +110,7 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
     		}
     	}
     	return label.toString();
-    } // end of findParent
+    }
 
     @Override
     public String findChildren(T nodeLabel) {
@@ -124,78 +125,80 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
     		}
     	}
     	return label.toString();
-    } // end of findParent
+    }
 
     
-    public void addToRear (T e, T[] arr) {
-        if(rear > LENGTH)
+    public void push (T e, T[] arr) {
+        if(backCounter > LENGTH)
         	expandArray();
-       arr[rear] = e;
-       rear++;
+       arr[backCounter] = e;
+       backCounter++;
     }
 
     @Override
     public void printInPreorder(PrintWriter writer) {
-    	T[] tempArr = (T[])new Object[LENGTH];
+    	T[] tempArr = (T[])new Object[counter+1];
     	preorder (0, tempArr);
     	for(int i = 0; i <= counter; i++) {
-    		if(tempArr[i]!=null)
+//    		if(tempArr[i]!=null)
     			writer.print(tempArr[i]+ " ");
     	}
     	writer.println();
-    	rear=0;
+    	backCounter = 0;
     }
     
-    private void preorder (int node, T[] tempArr) {
-       if (node < LENGTH ) {
-          if (tree[node] != null) {
-        	  addToRear(tree[node], tempArr);
-        	  preorder ((node*2)+1,tempArr);
-        	  preorder ((node*2)+2, tempArr);
-          }
-       }
+    private void preorder (int i, T[] tempArr) {
+	   if (i < LENGTH ) {
+	      if (tree[i] != null) {
+	    	  push(tree[i], tempArr);
+	    	  preorder ((i*2)+1,tempArr);
+	    	  preorder ((i*2)+2, tempArr);
+	      }
+	   }
     }
 
     @Override
     public void printInInorder(PrintWriter writer) {
-    	T[] tempArr = (T[])new Object[LENGTH];
+    	T[] tempArr = (T[])new Object[counter+1];
     	inorder (0, tempArr);
     	for(int i = 0; i <= counter; i++) {
-    		if(tempArr[i]!=null)
+//    		if(tempArr[i]!=null)
     			writer.print(tempArr[i]+ " ");
     	}
     	writer.println();
-    	rear=0;
+    	backCounter = 0;
     }
     
-    private void inorder (int node, T[] tempArr) {
-       if (node < LENGTH)
-          if (tree[node] != null) {
-             inorder ((node*2)+1, tempArr);
-             addToRear(tree[node], tempArr);
-             inorder ((node*2)+2, tempArr);
-          }
-    }  
+    private void inorder (int i, T[] tempArr) {
+	   if (i < LENGTH) {
+	      if (tree[i] != null) {
+	         inorder ((i*2)+1, tempArr);
+	         push(tree[i], tempArr);
+	         inorder ((i*2)+2, tempArr);
+	      }
+	   }
+	}  
 
     @Override
     public void printInPostorder(PrintWriter writer) {
-    	T[] tempArr = (T[])new Object[LENGTH];
+    	T[] tempArr = (T[])new Object[counter+1];
     	postorder (0, tempArr);
     	for(int i = 0; i <= counter; i++) {
-    		if(tempArr[i]!=null)
+//    		if(tempArr[i]!=null)
     			writer.print(tempArr[i]+ " ");
     	}
     	writer.println();
-    	rear=0;
+    	backCounter = 0;
     }
     
-    private void postorder (int node, T[] tempArr) {
-       if (node < LENGTH)
-          if (tree[node] != null) {
-        	  postorder ((node*2)+1, tempArr);
-        	  postorder ((node*2)+2, tempArr);
-        	  addToRear(tree[node], tempArr);
-          }
+    private void postorder (int i, T[] tempArr) {
+	   if (i < LENGTH) {
+		  if (tree[i] != null) {
+			  postorder ((i*2)+1, tempArr);
+			  postorder ((i*2)+2, tempArr);
+			  push(tree[i], tempArr);
+		  }
+	   }
     }
 
-} // end of class SequentialRepresentation
+}
