@@ -127,23 +127,11 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
     	return label.toString();
     }
 
-    
-    public void push (T e, T[] arr) {
-        if(backCounter > LENGTH)
-        	expandArray();
-       arr[backCounter] = e;
-       backCounter++;
-    }
-
     @Override
     public void printInPreorder(PrintWriter writer) {
     	T[] tempArr = (T[])new Object[counter+1];
     	preorder (0, tempArr);
-    	for(int i = 0; i <= counter; i++) {
-//    		if(tempArr[i]!=null)
-    			writer.print(tempArr[i]+ " ");
-    	}
-    	writer.println();
+    	writer(tempArr, writer);
     	backCounter = 0;
     }
     
@@ -161,11 +149,7 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
     public void printInInorder(PrintWriter writer) {
     	T[] tempArr = (T[])new Object[counter+1];
     	inorder (0, tempArr);
-    	for(int i = 0; i <= counter; i++) {
-//    		if(tempArr[i]!=null)
-    			writer.print(tempArr[i]+ " ");
-    	}
-    	writer.println();
+    	writer(tempArr, writer);
     	backCounter = 0;
     }
     
@@ -183,11 +167,7 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
     public void printInPostorder(PrintWriter writer) {
     	T[] tempArr = (T[])new Object[counter+1];
     	postorder (0, tempArr);
-    	for(int i = 0; i <= counter; i++) {
-//    		if(tempArr[i]!=null)
-    			writer.print(tempArr[i]+ " ");
-    	}
-    	writer.println();
+    	writer(tempArr, writer);
     	backCounter = 0;
     }
     
@@ -199,6 +179,20 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
 			  push(tree[i], tempArr);
 		  }
 	   }
+    }
+    
+    public void push (T e, T[] arr) {
+        if(backCounter > counter+1)
+        	expandArray();
+       arr[backCounter] = e;
+       backCounter++;
+    }
+    
+    public void writer(T[] arr, PrintWriter writer) {
+    	for(int i = 0; i < counter+1; i++) {
+    		writer.print(arr[i]+ " ");
+    	}
+    	writer.println();
     }
 
 }
