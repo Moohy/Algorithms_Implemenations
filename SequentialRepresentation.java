@@ -1,4 +1,6 @@
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 
 
 /**
@@ -15,51 +17,185 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
     /**
      * Constructs empty graph.
      */
+	
+	private int LENGTH = 50;
+	private T[] tree = (T[])new Object[LENGTH];
+	private int counter = -1;
+	private int rear = 0;
+	
     public SequentialRepresentation() {
-        // Implement me!
+
     } // end of SequentialRepresentation()
 
     @Override
     public void setRootNode(T nodeLabel) {
-        // Implement me!
+    	if(counter > 0) return;
+        tree[0] = nodeLabel;
+        counter = 0;
     } // end of setRootNode()
 
     @Override
     public void splitNode(T srcLabel, T leftChild, T rightChild) {
-        // Implement me!
+    	
+    	Comparable<T> temp = (Comparable<T>)srcLabel;
+    	int parentIndex;
+    	
+        if(counter > (LENGTH/2))
+        	expandArray();
+        
+        if(counter < 0) {
+        	setRootNode(srcLabel);
+        	parentIndex = 0;
+	        this.tree[parentIndex*2+1] = leftChild;
+	        counter++;
+	        this.tree[parentIndex*2+2] = rightChild;	
+	        counter++;
+        } else {
+        	
+        	if(findNode(srcLabel)) {
+        		
+            	for(int i = 0; i < LENGTH; i++) {
+            		if(tree[i] != null && srcLabel.equals(tree[i])) {
+            			if(tree[i*2+1] == null && tree[i*2+2] == null) {
+	            	        tree[i*2+1] = leftChild;
+	            	        counter++;
+	            	        tree[i*2+2] = rightChild;	
+	            	        counter++;
+	            	        break;
+            			}
+            		}
+            	}
+        	}
+        }
+        
     } // end of splitNode
+    
+    public void expandArray() {
+    	T[] newTree = (T[])new Object[LENGTH*2];
+    	System.arraycopy(tree, 0, newTree, 0, LENGTH);
+    	LENGTH*=2;
+    	tree = newTree;
+    }
 
     @Override
     public boolean findNode(T nodeLabel) {
-        // Implement me!
-        return false;
+    	String temp = nodeLabel.toString();
+    	for(int i = 0; i < LENGTH; i++) {
+    		if(tree[i] != null && temp.compareTo(tree[i].toString()) == 0) {
+    			return true;
+    		}
+    	}
+    	return false;
     } // end of findNode
 
     @Override
     public String findParent(T nodeLabel) {
-        // Implement me!
-        return null;
+    	StringBuilder label = new StringBuilder();
+    	label.append(nodeLabel.toString()+" ");
+    	Comparable<T> temp = (Comparable<T>)nodeLabel;
+    	if (temp.compareTo(tree[0]) == 0) {
+    		label.append("is root.");
+    		return label.toString();
+    	}
+    	for(int i = 0; i < LENGTH; i++) {
+    		if(tree[i] != null && temp.compareTo(tree[i]) == 0) {
+    			if(i%2==0)
+    				label.append(tree[(i/2)-1].toString());
+    			else if (i%2==1)
+    				label.append(tree[(i/2)].toString());
+    			else
+    				label.append(tree[0].toString());
+    			return label.toString();
+    		}
+    	}
+    	return label.toString();
     } // end of findParent
 
     @Override
     public String findChildren(T nodeLabel) {
-        // Implement me!
-        return null;
+    	StringBuilder label = new StringBuilder();
+    	label.append(nodeLabel.toString()+" ");
+    	Comparable<T> temp = (Comparable<T>)nodeLabel;
+    	for(int i = 0; i < LENGTH; i++) {
+    		if(tree[i] != null && temp.compareTo(tree[i]) == 0) {
+				label.append(tree[(i*2)+1].toString()+" ");
+				label.append(tree[(i*2)+2].toString());
+    			return label.toString();
+    		}
+    	}
+    	return label.toString();
     } // end of findParent
+
+    
+    public void addToRear (T e, T[] arr) {
+        if(rear > LENGTH)
+        	expandArray();
+       arr[rear] = e;
+       rear++;
+    }
 
     @Override
     public void printInPreorder(PrintWriter writer) {
-        // Implement me!
-    } // end of printInPreorder
+    	T[] tempArr = (T[])new Object[LENGTH];
+    	preorder (0, tempArr);
+    	for(int i = 0; i <= counter; i++) {
+    		if(tempArr[i]!=null)
+    			writer.print(tempArr[i]+ " ");
+    	}
+    	writer.println();
+    	rear=0;
+    }
+    
+    private void preorder (int node, T[] tempArr) {
+       if (node < LENGTH ) {
+          if (tree[node] != null) {
+        	  addToRear(tree[node], tempArr);
+        	  preorder ((node*2)+1,tempArr);
+        	  preorder ((node*2)+2, tempArr);
+          }
+       }
+    }
 
     @Override
     public void printInInorder(PrintWriter writer) {
-        // Implement me!
-    } // end of printInInorder
+    	T[] tempArr = (T[])new Object[LENGTH];
+    	inorder (0, tempArr);
+    	for(int i = 0; i <= counter; i++) {
+    		if(tempArr[i]!=null)
+    			writer.print(tempArr[i]+ " ");
+    	}
+    	writer.println();
+    	rear=0;
+    }
+    
+    private void inorder (int node, T[] tempArr) {
+       if (node < LENGTH)
+          if (tree[node] != null) {
+             inorder ((node*2)+1, tempArr);
+             addToRear(tree[node], tempArr);
+             inorder ((node*2)+2, tempArr);
+          }
+    }  
 
     @Override
     public void printInPostorder(PrintWriter writer) {
-        // Implement me!
-    } // end of printInPostorder
+    	T[] tempArr = (T[])new Object[LENGTH];
+    	postorder (0, tempArr);
+    	for(int i = 0; i <= counter; i++) {
+    		if(tempArr[i]!=null)
+    			writer.print(tempArr[i]+ " ");
+    	}
+    	writer.println();
+    	rear=0;
+    }
+    
+    private void postorder (int node, T[] tempArr) {
+       if (node < LENGTH)
+          if (tree[node] != null) {
+        	  postorder ((node*2)+1, tempArr);
+        	  postorder ((node*2)+2, tempArr);
+        	  addToRear(tree[node], tempArr);
+          }
+    }
 
 } // end of class SequentialRepresentation
