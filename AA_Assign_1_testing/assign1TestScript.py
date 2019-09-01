@@ -35,7 +35,9 @@
 # all my input and expected files are located in a directory called "tests" 
 # and named test1.in and testing for sample implementation:
 #
-# > python assign1TestScript.py -v   Assign1-s1234    sample     tests/test1.in
+# > python assign1TestScript.py -v   ../    sample     tests/test1.in
+# > python assign1TestScript.py -v   ../    seqtree    tests/test1.in
+# > python assign1TestScript.py -v   ../    linktree   tests/test1.in
 #
 # Another example if running test2.in and using the BSP Tree as my initial one:
 # > python assign1TestScript.py -v -f BSP_combined.txt   Assign1-s1234    sample     tests/test2.in

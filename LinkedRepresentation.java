@@ -14,125 +14,180 @@ import java.io.PrintWriter;
 public class LinkedRepresentation<T> implements BSPTree<T> {
 	
 	public class BTnode<T> {
-		BTnode<T> root;
+		T value;
 		BTnode<T> l;
 		BTnode<T> r;
-		String label;
-		
-		public BTnode() {
-			root =null;
-			root.l = null;
-			root.r = null;
+
+		public BTnode(T value) {
+			this.value = value;
+			l = null;
+			r = null;
 		}
-		
-		public BTnode(T node) {
-			root = (BTnode<T>) node;
-			root.l = null;
-			root.r = null;
-		}
-		
-		public BTnode getParent(T node) {
-			return null;
-		}
-		
-		public String getLabel() {
-			return this.label;
-		}
-		
-		public void setValue(String label) {
-			root.label = label;
-		}
-		
-		public void setLChild(T node) {
-			root.l = (BTnode<T>)node;
-		}
-		
-		public void setRChild(T node) {
-			root.r = (BTnode<T>)node;
-		}
-		
-	    public boolean hasRoot(BTnode node) {
-	    	if(node.root != null) {
-	    		return true;
-	    	}
-	    	return false;
-	    }
-	    public boolean hasRChild(BTnode node) {
-	    	if(node.r != null) {
-	    		return true;
-	    	}
-	    	return false;
-	    }
-	    public boolean hasLChild(BTnode node) {
-	    	if(node.l != null) {
-	    		return true;
-	    	}
-	    	return false;
-	    }
 	}
 	
-	private BTnode node;
     /**
      * Constructs empty tree.
      */
-    public LinkedRepresentation() {
-        // Implement me!
-    	
-    } // end of LinkedRepresentation()
+	public BTnode root;
+	
+    public LinkedRepresentation() {  
+    	root = null;
+    }
     
     public LinkedRepresentation(String label) {
-        // Implement me!
+        setRootNode((T)label);
+    }
+
+    @Override
+    public void setRootNode(T nodeLabel) {      
+    	root = new BTnode(nodeLabel);  			
+    }
+
+    @Override
+    public void splitNode(T srcLabel, T leftChild, T rightChild) {
+    	
+    	if(root == null) {
+    		setRootNode(srcLabel);
+    		root.l = new BTnode(leftChild);
+    		root.r = new BTnode(rightChild);
+    	} else if (findNode(srcLabel)){
+    		BTnode t = getNode(srcLabel);
+    		if(t != null) {
+	            t.l = new BTnode(leftChild);
+	            t.r = new BTnode(rightChild);
+    		}
+        }
     	
     }
 
     @Override
-    public void setRootNode(T nodeLabel) {
-        // Implement me!
-    	node = new BTnode<T>(nodeLabel);
-    	
-    			
-    } // end of setRootNode()
-
-    @Override
-    public void splitNode(T srcLabel, T leftChild, T rightChild) {
-        // Implement me!
-    	
-    } // end of splitNode
-
-    @Override
     public boolean findNode(T nodeLabel) {
-        // Implement me!
-        return false;
-    } // end of findNode
+    	return findNode(root, nodeLabel);
+    }
+    
+    private boolean findNode(BTnode node, T nodeLabel) {
+    	if (node == null)  
+            return false;  
+      
+        if (node.value.equals(nodeLabel))  
+            return true;  
+      
+        boolean lTree = findNode(node.l, nodeLabel);        
+        boolean rTree = findNode(node.r, nodeLabel);  
+      
+        return lTree || rTree;  
+    }
+    
+    public BTnode getNode(T nodeLabel) {
+    	return getNode(root, nodeLabel);
+    }
+    
+    private BTnode getNode(BTnode node, T nodeLabel) {      
+        if(node != null){
+            if(node.value.equals(nodeLabel)){
+               return node;
+            } else {
+                BTnode foundNode = getNode(node.l, nodeLabel);
+                if(foundNode == null) {
+                    foundNode = getNode(node.r, nodeLabel);
+                }
+                return foundNode;
+             }
+        } else {
+            return null;
+        }
+    }
 
     @Override
     public String findParent(T nodeLabel) {
-        // Implement me!
-        return null;
-    } // end of findParent
+    	StringBuilder s = new StringBuilder();
+    	s.append(nodeLabel + " " + findParent(root, nodeLabel));
+        return s.toString();
+    }
+    
+    private String findParent(BTnode node, T nodeLabel) {
+        if(node != null){
+            if((node.l != null && node.l.value.equals(nodeLabel)) || (node.r != null && node.r.value.equals(nodeLabel))){
+               return (String) node.value;
+            } else {
+                String label = findParent(node.l, nodeLabel);
+                if(label == null) {
+                	label = findParent(node.r, nodeLabel);
+                }
+                return label;
+             }
+        }
+		return null;
+    }
 
     @Override
     public String findChildren(T nodeLabel) {
-        // Implement me!
+    	BTnode t = getNode(nodeLabel);
+    	
+    	StringBuilder s = new StringBuilder();
+    	s.append(nodeLabel + " ");
+    	if(t != null) {
+    		if(t.l != null)
+				s.append(t.l.value + " ");
+			if(t.r != null)
+				s.append(t.r.value + " ");
+			return s.toString();
+    	}
 
         return null;
-    } // end of findParent
+    }
 
     @Override
     public void printInPreorder(PrintWriter writer) {
-        // Implement me!
-    } // end of printInPreorder
+    	preorder(root, writer);
+    }
+    
+    private void preorder(BTnode node, PrintWriter writer) {
+        if (node == null) 
+            return; 
+        writer.print(node.value + " ");
+        
+ 
+        if(node.l != null)
+        	preorder(node.l, writer); 
+  
+        if(node.r != null)
+        	preorder(node.r, writer); 
+    }
 
     @Override
     public void printInInorder(PrintWriter writer) {
-        // Implement me!
-    } // end of printInInorder
+    	inorder(root, writer);
+    }
+    
+    private void inorder(BTnode node, PrintWriter writer) {
+        if (node == null) 
+            return; 
+ 
+        if(node.l != null)
+        	inorder(node.l, writer); 
+        
+        writer.print(node.value + " ");
+  
+        if(node.r != null)
+        	inorder(node.r, writer); 
+    }
 
     @Override
     public void printInPostorder(PrintWriter writer) {
-        // Implement me!
-    } // end of printInPostorder
+    	postorder(root, writer);
+    }
     
-
-
-} // end of class LinkedRepresentation
+    private void postorder(BTnode node, PrintWriter writer) {
+        if (node == null) 
+            return; 
+ 
+        if(node.l != null)
+        	postorder(node.l, writer); 
+  
+        if(node.r != null)
+        	postorder(node.r, writer); 
+        
+        writer.print(node.value + " ");
+    }
+}
